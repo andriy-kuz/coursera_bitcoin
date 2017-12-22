@@ -1,0 +1,40 @@
+cargo:rerun-if-env-changed=X86_64_PC_WINDOWS_MSVC_OPENSSL_LIB_DIR
+cargo:rerun-if-env-changed=OPENSSL_LIB_DIR
+cargo:rerun-if-env-changed=X86_64_PC_WINDOWS_MSVC_OPENSSL_INCLUDE_DIR
+cargo:rerun-if-env-changed=OPENSSL_INCLUDE_DIR
+cargo:rerun-if-env-changed=X86_64_PC_WINDOWS_MSVC_OPENSSL_DIR
+cargo:rerun-if-env-changed=OPENSSL_DIR
+cargo:rustc-link-search=native=C:\OpenSSL-Win64\lib
+cargo:include=C:\OpenSSL-Win64\include
+OPT_LEVEL = Some("0")
+TARGET = Some("x86_64-pc-windows-msvc")
+HOST = Some("x86_64-pc-windows-msvc")
+TARGET = Some("x86_64-pc-windows-msvc")
+TARGET = Some("x86_64-pc-windows-msvc")
+HOST = Some("x86_64-pc-windows-msvc")
+CC_x86_64-pc-windows-msvc = None
+CC_x86_64_pc_windows_msvc = None
+HOST_CC = None
+CC = None
+TARGET = Some("x86_64-pc-windows-msvc")
+HOST = Some("x86_64-pc-windows-msvc")
+CFLAGS_x86_64-pc-windows-msvc = None
+CFLAGS_x86_64_pc_windows_msvc = None
+HOST_CFLAGS = None
+CFLAGS = None
+DEBUG = Some("true")
+running: "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\amd64\\cl.exe" "/nologo" "/MD" "/Z7" "/I" "C:\\OpenSSL-Win64\\include" "/W4" "/E" "c:\\dev\\crypto\\coursera\\coursera_bitcoin\\scrooge_coin\\target\\rls\\debug\\build\\openssl-sys-1894a925a0cebe61\\out\\expando.c"
+cargo:warning=expando.c
+exit code: 0
+cargo:rustc-cfg=osslconf="OPENSSL_NO_SSL3_METHOD"
+cargo:conf=OPENSSL_NO_SSL3_METHOD
+cargo:rustc-cfg=ossl110
+cargo:rustc-cfg=ossl110f
+cargo:version=110
+cargo:patch=f
+cargo:rerun-if-env-changed=X86_64_PC_WINDOWS_MSVC_OPENSSL_LIBS
+cargo:rerun-if-env-changed=OPENSSL_LIBS
+cargo:rerun-if-env-changed=X86_64_PC_WINDOWS_MSVC_OPENSSL_STATIC
+cargo:rerun-if-env-changed=OPENSSL_STATIC
+cargo:rustc-link-lib=static=libssl
+cargo:rustc-link-lib=static=libcrypto
