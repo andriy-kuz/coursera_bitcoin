@@ -11,7 +11,7 @@ pub fn verify_signature(pub_key: &Vec<u8>, msg: &Vec<u8>, sig: &Vec<u8>) -> bool
     verifier.finish(sig).unwrap()
 }
 
-pub fn double_sha256(data: &Vec<u8>) -> Vec<u8> {
+pub fn double_sha256(data: &Vec<u8>) -> [u8; 32] {
     let data = sha256(data).to_vec();
-    sha256(&data).to_vec()
+    sha256(&data)
 }

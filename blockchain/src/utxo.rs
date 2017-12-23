@@ -3,12 +3,12 @@ use transaction::TransactionOutput;
 
 #[derive(Eq, PartialEq, Hash)]
 pub struct UTXO {
-    pub hash: Vec<u8>,
+    pub hash: [u8;32],
     pub index: usize,
 }
 
 impl UTXO {
-    pub fn new(hash: Vec<u8>, index: usize) -> UTXO {
+    pub fn new(hash: [u8;32], index: usize) -> Self {
         UTXO { hash, index }
     }
 }

@@ -1,43 +1,44 @@
 use bytevec::{ByteEncodable};
 use utxo::UTXO;
 use crypto;
+use std::mem;
 
-bytevec_decl! {
 #[derive(PartialEq, Debug)]
 pub struct Transaction {
-    hash: Vec<u8>,
+    hash: [u8;32],
     input_txs: Vec<TransactionInput>,
     output_txs: Vec<TransactionOutput>,
     coinbase: u8 // bool is not supported in bytevec
 }
 
+bytevec_decl! {
 #[derive(PartialEq, Debug, Clone)]
 pub struct TransactionOutput {
     value: f64,
     address: Vec<u8> // RSA public key in PEM format
 }
+}
 
 #[derive(PartialEq, Debug)]
 pub struct TransactionInput {
-    prev_tx_hash: Vec<u8>,
+    prev_tx_hash: [u8;32],
     output_index: usize,
-    signature: Vec<u8>
-}
+    signature: [u8;32]
 }
 
 impl Transaction {
-    pub fn new() -> Transaction {
+    pub fn new() -> Self {
         Transaction {
-            hash: Vec::new(),
+            hash: [0;32],
             input_txs: Vec::new(),
             output_txs: Vec::new(),
             coinbase: 0,
         }
     }
 
-    pub fn new_value(coin: f64, pub_key: Vec<u8>) -> Transaction {
+    pub fn new_value(coin: f64, pub_key: Vec<u8>) -> Self {
         let mut tx = Transaction {
-            hash: Vec::new(),
+            hash: [0;32],
             input_txs: Vec::new(),
             output_txs: Vec::new(),
             coinbase: 1,
@@ -51,7 +52,7 @@ impl Transaction {
         return self.coinbase;
     }
 
-    pub fn add_input_tx(&mut self, prav_tx_hash: Vec<u8>, output_index: usize) {
+    pub fn add_input_tx(&mut self, prav_tx_hash: [u8;32], output_index: usize) {
         let tx = TransactionInput::new(prav_tx_hash, output_index);
         self.input_txs.push(tx);
     }
@@ -86,8 +87,9 @@ impl Transaction {
         sig_data
     }
 
-    pub fn add_signature(&mut self, signature: Vec<u8>, index: usize) {
+    pub fn add_signature(&mut self, signature: [u8;32], index: usize) {
         if let Some(ref mut intput_tx) = self.input_txs.get_mut(index) {
+
             intput_tx.add_signature(signature);
         }
     }
@@ -101,11 +103,11 @@ impl Transaction {
         self.encode::<u32>().unwrap()
     }
 
-    pub fn set_hash(&mut self, hash: Vec<u8>) {
+    pub fn set_hash(&mut self, hash: [u8;32]) {
         self.hash = hash;
     }
 
-    pub fn get_hash(&self) -> Vec<u8> {
+    pub fn get_hash(&self) -> [u8;32] {
         self.hash.clone()
     }
 
@@ -133,37 +135,52 @@ impl Transaction {
         self.output_txs.len()
     }
 
-    pub fn hash(&self) -> Vec<u8> {
+    pub fn hash(&self) -> [u8;32] {
         let data = self.get_raw_data();
         crypto::double_sha256(&data)
     }
 }
 
 impl TransactionInput {
-    pub fn new(prev_tx_hash: Vec<u8>, output_index: usize) -> TransactionInput {
+    pub fn new(prev_tx_hash: [u8;32], output_index: usize) -> Self {
         TransactionInput {
             prev_tx_hash,
             output_index,
-            signature: Vec::new(),
+            signature: [0;32],
         }
     }
 
-    pub fn add_signature(&mut self, signature: Vec<u8>) {
+    pub fn add_signature(&mut self, signature: [u8;32]) {
         self.signature = signature;
     }
 
-    pub fn hash(&self) -> Vec<u8> {
-        let data = self.encode::<u32>().unwrap();
+    pub fn get_raw_data(&self) -> Vec<u8> {
+        let mut data : Vec<u8> = Vec::new();
+        data.extend(self.prev_tx_hash.to_vec().iter().clone());
+
+        unsafe {
+            data.extend(
+                mem::transmute::<&usize, &[u8; mem::size_of::<usize>()]>(&self.output_index)
+                    .iter()
+                    .clone(),
+            );
+        }
+        data.extend(self.signature.to_vec().iter().clone());
+        data
+    }
+
+    pub fn hash(&self) -> [u8;32] {
+        let data = self.get_raw_data();
         crypto::double_sha256(&data)
     }
 }
 
 impl TransactionOutput {
-    pub fn new(value: f64, address: Vec<u8>) -> TransactionOutput {
+    pub fn new(value: f64, address: Vec<u8>) -> Self {
         TransactionOutput { value, address }
     }
 
-    pub fn hash(&self) -> Vec<u8> {
+    pub fn hash(&self) -> [u8;32] {
         let data = self.encode::<u32>().unwrap();
         crypto::double_sha256(&data)
     }
