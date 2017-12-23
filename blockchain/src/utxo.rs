@@ -1,10 +1,10 @@
 use std::collections::HashMap;
-use super::transaction::TransactionOutput;
+use transaction::TransactionOutput;
 
 #[derive(Eq, PartialEq, Hash)]
 pub struct UTXO {
-    hash: Vec<u8>,
-    index: usize,
+    pub hash: Vec<u8>,
+    pub index: usize,
 }
 
 impl UTXO {
@@ -18,12 +18,17 @@ pub struct UTXOPool {
 }
 
 impl UTXOPool {
+    pub fn new() -> Self {
+        UTXOPool {
+            utxo_map :HashMap::new()
+        }
+    }
     pub fn add_UTXO(&mut self, utxo: UTXO, tx_out: TransactionOutput) {
         self.utxo_map.insert(utxo, tx_out);
     }
 
-    pub fn remove_UTXO(&mut self, utxo: &UTXO) {
-        self.utxo_map.remove(utxo);
+    pub fn remove_UTXO(&mut self, utxo: UTXO) {
+        self.utxo_map.remove(&utxo);
     }
 
     pub fn get_tx_out(&self, utxo: &UTXO) -> &TransactionOutput {

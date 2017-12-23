@@ -4,3 +4,4 @@ version = "0.1.0"
 
 [dependencies]
 openssl = "0.9.20"
+bytevec = "0.2.0"
