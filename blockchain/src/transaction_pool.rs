@@ -15,8 +15,8 @@ impl TransactionPool {
         self.pool.insert(hash, tx);
     }
 
-    pub fn remove_tx(&mut self, hash: [u8; 32]) {
-        self.pool.remove(&hash);
+    pub fn remove_tx(&mut self, hash: &[u8; 32]) {
+        self.pool.remove(hash);
     }
 
     pub fn get_tx(&self, hash: &[u8; 32]) -> &Transaction {
