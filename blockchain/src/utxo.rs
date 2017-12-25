@@ -14,35 +14,35 @@ impl UTXO {
 }
 
 pub struct UTXOPool {
-    utxo_map: HashMap<UTXO, TransactionOutput>,
+    pool: HashMap<UTXO, TransactionOutput>,
 }
 
 impl UTXOPool {
     pub fn new() -> Self {
-        UTXOPool { utxo_map: HashMap::new() }
+        UTXOPool { pool: HashMap::new() }
     }
     pub fn add_UTXO(&mut self, utxo: UTXO, tx_out: TransactionOutput) {
-        self.utxo_map.insert(utxo, tx_out);
+        self.pool.insert(utxo, tx_out);
     }
 
     pub fn remove_UTXO(&mut self, utxo: UTXO) {
-        self.utxo_map.remove(&utxo);
+        self.pool.remove(&utxo);
     }
 
-    pub fn get_tx(&self, utxo: &UTXO) -> &TransactionOutput {
-        self.utxo_map.get(utxo).unwrap()
+    pub fn get_tx(&mut self, utxo: &UTXO) -> TransactionOutput {
+        self.pool.remove(utxo).unwrap()
     }
 
-    pub fn get_all_tx(&self) -> Vec<&TransactionOutput> {
-        let mut res: Vec<&TransactionOutput> = Vec::new();
+    pub fn get_all_txs(self) -> Vec<TransactionOutput> {
+        let mut res: Vec<TransactionOutput> = Vec::new();
 
-        for val in self.utxo_map.values() {
-            res.push(&val);
+        for (_, val) in self.pool.into_iter() {
+            res.push(val);
         }
         res
     }
 
     pub fn contains(&self, utxo: &UTXO) -> bool {
-        self.utxo_map.contains_key(utxo)
+        self.pool.contains_key(utxo)
     }
 }

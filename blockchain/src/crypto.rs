@@ -4,7 +4,7 @@ use openssl::hash::MessageDigest;
 use openssl::sha::sha256;
 
 
-pub fn verify_signature(pub_key: &Vec<u8>, msg: &Vec<u8>, sig: &Vec<u8>) -> bool {
+pub fn verify_signature(pub_key: &Vec<u8>, msg: &[u8; 32], sig: &[u8; 32]) -> bool {
     let pub_key = PKey::public_key_from_pem(pub_key).unwrap();
     let mut verifier = Verifier::new(MessageDigest::sha256(), &pub_key).unwrap();
     verifier.update(msg).unwrap();

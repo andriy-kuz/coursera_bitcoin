@@ -10,17 +10,17 @@ pub struct Transaction {
     coinbase: u8, // bool is not supported in bytevec
 }
 
-#[derive(PartialEq, Debug, Clone)]
-pub struct TransactionOutput {
-    value: f64,
-    address: Vec<u8>, // RSA public key in PEM format
-}
-
 #[derive(PartialEq, Debug)]
 pub struct TransactionInput {
-    prev_tx_hash: [u8; 32],
-    output_index: usize,
-    signature: [u8; 32],
+    pub prev_tx_hash: [u8; 32],
+    pub output_index: usize,
+    pub signature: [u8; 32],
+}
+
+#[derive(PartialEq, Debug, Clone)]
+pub struct TransactionOutput {
+    pub value: f64,
+    pub address: Vec<u8>, // RSA public key in PEM format
 }
 
 impl Transaction {
@@ -50,13 +50,14 @@ impl Transaction {
     }
 
     pub fn add_input_tx(&mut self, prav_tx_hash: [u8; 32], output_index: usize) {
-        let tx = TransactionInput::new(prav_tx_hash, output_index);
-        self.input_txs.push(tx);
+        self.input_txs.push(TransactionInput::new(
+            prav_tx_hash,
+            output_index,
+        ));
     }
 
     pub fn add_output_tx(&mut self, value: f64, address: Vec<u8>) {
-        let tx = TransactionOutput::new(value, address);
-        self.output_txs.push(tx);
+        self.output_txs.push(TransactionOutput::new(value, address));
     }
 
     pub fn remove_input_tx(&mut self, index: usize) {
@@ -71,34 +72,30 @@ impl Transaction {
     }
 
     pub fn raw_data_to_sign(&self, index: usize) -> Vec<u8> {
-        let mut sign_data: Vec<u8> = Vec::new();
+        let mut data: Vec<u8> = Vec::new();
 
         if index > self.input_txs.len() {
             panic!("Invalid index");
         }
         let input_tx = self.input_txs.get(index).unwrap();
-        let mut data = input_tx.raw_data_to_sign();
-        sign_data.append(&mut data);
+        data.append(&mut input_tx.raw_data_to_sign());
         for output_tx in &self.output_txs {
-            data = output_tx.raw_data();
-            sign_data.append(&mut data);
+            data.append(&mut output_tx.raw_data());
         }
-        sign_data
+        data
     }
 
     pub fn raw_data(&self) -> Vec<u8> {
-        let mut raw_data: Vec<u8> = Vec::new();
+        let mut data: Vec<u8> = Vec::new();
 
         for input_tx in &self.input_txs {
-            let mut data = input_tx.raw_data();
-            raw_data.append(&mut data);
+            data.append(&mut input_tx.raw_data());
         }
 
         for output_tx in &self.output_txs {
-            let mut data = output_tx.raw_data();
-            raw_data.append(&mut data);
+            data.append(&mut output_tx.raw_data());
         }
-        raw_data
+        data
     }
 
     pub fn add_signature(&mut self, signature: [u8; 32], index: usize) {
@@ -137,8 +134,7 @@ impl Transaction {
     }
 
     pub fn finalize(&mut self) {
-        let raw_tx = self.raw_data();
-        self.hash = crypto::double_sha256(&raw_tx)
+        self.hash = crypto::double_sha256(&self.raw_data())
     }
 }
 
@@ -173,11 +169,6 @@ impl TransactionInput {
         data.extend(self.signature.to_vec().iter().clone());
         data
     }
-
-    pub fn hash(&self) -> [u8; 32] {
-        let data = self.raw_data();
-        crypto::double_sha256(&data)
-    }
 }
 
 impl TransactionOutput {
@@ -196,10 +187,5 @@ impl TransactionOutput {
         }
         data.append(&mut self.address.clone());
         data
-    }
-
-    pub fn hash(&self) -> [u8; 32] {
-        let data = self.raw_data();
-        crypto::double_sha256(&data)
     }
 }

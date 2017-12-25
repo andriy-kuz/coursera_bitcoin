@@ -6,3 +6,6 @@ mod transaction;
 mod transaction_pool;
 mod utxo;
 mod block;
+mod blockchain;
+mod blockhandler;
+mod txhandler;
