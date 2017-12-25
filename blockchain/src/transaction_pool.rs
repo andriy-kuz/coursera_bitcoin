@@ -2,14 +2,12 @@ use transaction::Transaction;
 use std::collections::HashMap;
 
 pub struct TransactionPool {
-    pool: HashMap<[u8;32], Transaction>,
+    pool: HashMap<[u8; 32], Transaction>,
 }
 
 impl TransactionPool {
     fn new() -> Self {
-        TransactionPool {
-           pool :  HashMap::new()
-        }
+        TransactionPool { pool: HashMap::new() }
     }
 
     pub fn add_tx(&mut self, tx: Transaction) {
@@ -17,11 +15,11 @@ impl TransactionPool {
         self.pool.insert(hash, tx);
     }
 
-    pub fn remove_tx(&mut self, hash: [u8;32]) {
+    pub fn remove_tx(&mut self, hash: [u8; 32]) {
         self.pool.remove(&hash);
     }
 
-    pub fn get_tx(&self, hash: &[u8;32]) -> &Transaction {
+    pub fn get_tx(&self, hash: &[u8; 32]) -> &Transaction {
         self.pool.get(hash).unwrap()
     }
 
@@ -34,4 +32,3 @@ impl TransactionPool {
         res
     }
 }
-
