@@ -1,5 +1,5 @@
-use transaction::Transaction;
 use std::collections::HashMap;
+use transaction::Transaction;
 
 pub struct TransactionPool {
     pool: HashMap<[u8; 32], Transaction>,

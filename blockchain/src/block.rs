@@ -1,5 +1,5 @@
-use transaction::Transaction;
 use crypto;
+use transaction::Transaction;
 
 static COINBASE: f64 = 25.0;
 

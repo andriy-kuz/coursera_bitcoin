@@ -1,5 +1,5 @@
-use blockchain::Blockchain;
 use block::Block;
+use blockchain::Blockchain;
 use transaction::Transaction;
 use txhandler::TxHandler;
 

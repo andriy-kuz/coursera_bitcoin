@@ -1,7 +1,7 @@
 use block::Block;
-use utxo::UTXOPool;
-use transaction_pool::TransactionPool;
 use transaction::Transaction;
+use transaction_pool::TransactionPool;
+use utxo::UTXOPool;
 
 static CUT_OFF_AGE: usize = 10;
 /// Block Chain should maintain only limited block nodes to satisfy the functions

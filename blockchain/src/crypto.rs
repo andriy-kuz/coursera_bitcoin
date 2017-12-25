@@ -1,7 +1,7 @@
-use openssl::sign::Verifier;
-use openssl::pkey::PKey;
 use openssl::hash::MessageDigest;
+use openssl::pkey::PKey;
 use openssl::sha::sha256;
+use openssl::sign::Verifier;
 
 
 pub fn verify_signature(pub_key: &Vec<u8>, msg: &[u8; 32], sig: &[u8; 32]) -> bool {

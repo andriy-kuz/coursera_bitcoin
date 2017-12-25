@@ -1,11 +1,11 @@
 #![feature(const_size_of)]
 extern crate openssl;
 
-mod crypto;
-mod transaction;
-mod transaction_pool;
-mod utxo;
 mod block;
 mod blockchain;
 mod blockhandler;
+mod crypto;
+mod transaction;
+mod transaction_pool;
 mod txhandler;
+mod utxo;

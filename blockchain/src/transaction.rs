@@ -1,6 +1,6 @@
-use utxo::UTXO;
 use crypto;
 use std::mem;
+use utxo::UTXO;
 
 #[derive(PartialEq, Debug)]
 pub struct Transaction {

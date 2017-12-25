@@ -1,8 +1,7 @@
-use utxo::*;
-use transaction::Transaction;
 use crypto::*;
-
 use std::collections::HashSet;
+use transaction::Transaction;
+use utxo::*;
 
 pub struct TxHandler {
     utxo_pool: UTXOPool,
