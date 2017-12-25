@@ -33,7 +33,7 @@ impl Transaction {
         }
     }
 
-    pub fn new_value(coin: f64, pub_key: Vec<u8>) -> Self {
+    pub fn new_coinbase(coin: f64, pub_key: Vec<u8>) -> Self {
         let mut tx = Transaction {
             hash: [0; 32],
             input_txs: Vec::new(),
