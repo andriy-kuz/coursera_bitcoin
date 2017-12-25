@@ -3,12 +3,12 @@ use transaction::TransactionOutput;
 
 #[derive(Eq, PartialEq, Hash)]
 pub struct UTXO {
-    pub hash: [u8;32],
+    pub hash: [u8; 32],
     pub index: usize,
 }
 
 impl UTXO {
-    pub fn new(hash: [u8;32], index: usize) -> Self {
+    pub fn new(hash: [u8; 32], index: usize) -> Self {
         UTXO { hash, index }
     }
 }
@@ -19,9 +19,7 @@ pub struct UTXOPool {
 
 impl UTXOPool {
     pub fn new() -> Self {
-        UTXOPool {
-            utxo_map :HashMap::new()
-        }
+        UTXOPool { utxo_map: HashMap::new() }
     }
     pub fn add_UTXO(&mut self, utxo: UTXO, tx_out: TransactionOutput) {
         self.utxo_map.insert(utxo, tx_out);
@@ -31,11 +29,11 @@ impl UTXOPool {
         self.utxo_map.remove(&utxo);
     }
 
-    pub fn get_tx_out(&self, utxo: &UTXO) -> &TransactionOutput {
+    pub fn get_tx(&self, utxo: &UTXO) -> &TransactionOutput {
         self.utxo_map.get(utxo).unwrap()
     }
 
-    pub fn get_txs_out(&self) -> Vec<&TransactionOutput> {
+    pub fn get_all_tx(&self) -> Vec<&TransactionOutput> {
         let mut res: Vec<&TransactionOutput> = Vec::new();
 
         for val in self.utxo_map.values() {
