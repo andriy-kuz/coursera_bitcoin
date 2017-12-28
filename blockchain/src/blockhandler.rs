@@ -21,15 +21,13 @@ impl BlockHandler {
     }
 
     pub fn create_block(&mut self, my_address: Vec<u8>) -> Block {
-        let parent = self.blockchain.get_max_height_block();
-        let parent_hash = parent.hash().clone();
-
+        let parent_hash = self.blockchain.get_max_height_block().hash().clone();
         let mut current = Block::new(parent_hash, my_address);
-        let utxo_pool = self.blockchain.get_max_height_utxo_pool();
-        let tx_pool = self.blockchain.get_max_height_tx_pool();
-        let mut tx_handler = TxHandler::new(utxo_pool);
-        let txs = tx_pool.get_all_txs();
-        let txs = tx_handler.handle_txs(txs);
+        let mut txs = self.blockchain.get_max_height_tx_pool().get_all_txs();
+        {
+            let mut tx_handler = TxHandler::new(self.blockchain.get_max_height_utxo_pool());
+            txs = tx_handler.handle_txs(txs);
+        }
 
         for tx in txs {
             current.add_tx(tx);

@@ -7,7 +7,9 @@ pub struct TransactionPool {
 
 impl TransactionPool {
     pub fn new() -> Self {
-        TransactionPool { pool: HashMap::new() }
+        TransactionPool {
+            pool: HashMap::new(),
+        }
     }
 
     pub fn add_tx(&mut self, tx: Transaction) {
@@ -23,10 +25,10 @@ impl TransactionPool {
         self.pool.remove(hash).unwrap()
     }
 
-    pub fn get_all_txs(self) -> Vec<Transaction> {
+    pub fn get_all_txs(&mut self) -> Vec<Transaction> {
         let mut res: Vec<Transaction> = Vec::new();
 
-        for (_, val) in self.pool.into_iter() {
+        for (_, val) in self.pool.drain() {
             res.push(val);
         }
         res

@@ -3,12 +3,12 @@ use std::collections::HashSet;
 use transaction::Transaction;
 use utxo::*;
 
-pub struct TxHandler {
-    utxo_pool: UTXOPool,
+pub struct TxHandler<'a> {
+    utxo_pool: &'a mut UTXOPool,
 }
 
-impl TxHandler {
-    pub fn new(utxo_pool: UTXOPool) -> Self {
+impl<'a> TxHandler<'a> {
+    pub fn new(utxo_pool: &'a mut UTXOPool) -> Self {
         {
             TxHandler { utxo_pool }
         }
