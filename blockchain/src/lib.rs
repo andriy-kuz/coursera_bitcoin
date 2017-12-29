@@ -1,5 +1,6 @@
 #![feature(const_size_of)]
 extern crate openssl;
+extern crate time;
 
 mod block;
 mod blockchain;
