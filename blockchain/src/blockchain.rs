@@ -10,8 +10,11 @@ use transaction::Transaction;
 use utxo::UTXOPool;
 
 pub struct Branch {
+    /// Blocks list, keeps only CUT_OFF_AGE number of newest blocks
     _blocks: LinkedList<Block>,
+    /// Timestamp for last block in list
     _timestamp: Timespec,
+    /// unspended transactions pool for this branch
     pub _utxo_pool: UTXOPool,
 }
 
@@ -46,6 +49,7 @@ static CUT_OFF_AGE: usize = 10;
 /// as it would cause a memory overflow.
 /// Draft implementation
 pub struct Blockchain {
+    /// Global transaction pool
     _tx_pool: TransactionPool,
     /// BinaryHeap hold all branches with blocks and
     /// timespec of creation of last block
