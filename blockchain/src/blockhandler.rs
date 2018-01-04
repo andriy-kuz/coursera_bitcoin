@@ -25,7 +25,9 @@ impl BlockHandler {
         let mut current = Block::new(parent_hash, my_address);
         let mut txs = self.blockchain.get_max_height_tx_pool().get_all_txs();
         {
-            let mut tx_handler = TxHandler::new(self.blockchain.get_max_height_utxo_pool());
+            //TODO: txpoll changes, but not involved in heap reorganization
+            let mut branch = self.blockchain.get_max_height_branch();
+            let mut tx_handler = TxHandler::new(&mut branch._utxo_pool);
             txs = tx_handler.handle_txs(txs);
         }
 

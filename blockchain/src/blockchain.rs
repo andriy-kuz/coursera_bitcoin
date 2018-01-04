@@ -1,15 +1,17 @@
 use block::Block;
 use std::cmp::Ordering;
+use std::collections::binary_heap::PeekMut;
 use std::collections::BinaryHeap;
+use std::collections::LinkedList;
+use time;
 use time::Timespec;
 use transaction_pool::TransactionPool;
 use transaction::Transaction;
 use utxo::UTXOPool;
-use std::ops::DerefMut;
 
-struct Branch {
-    pub _blocks: Vec<Block>,
-    pub _timestamp: Timespec,
+pub struct Branch {
+    _blocks: LinkedList<Block>,
+    _timestamp: Timespec,
     pub _utxo_pool: UTXOPool,
 }
 
@@ -59,20 +61,37 @@ impl Blockchain {
     }
 
     pub fn get_max_height_block(&self) -> &Block {
-        &self._branches.peek().unwrap()._blocks.last().unwrap()
+        &self._branches.peek().unwrap()._blocks.back().unwrap()
     }
 
-    pub fn get_max_height_utxo_pool(&mut self) -> &mut UTXOPool {
-        &mut self._branches.peek_mut().unwrap().deref_mut()._utxo_pool
+    pub fn get_max_height_branch(&mut self) -> PeekMut<Branch> {
+        self._branches.peek_mut().unwrap()
     }
 
     pub fn get_max_height_tx_pool(&mut self) -> &mut TransactionPool {
         &mut self._tx_pool
     }
 
-    pub fn add_block(&mut self, _: Block) -> bool {
+    pub fn add_block(&mut self, block: Block) -> bool {
+        if *block.prev_hash() == [0; 32] {
+            return false;
+        }
+        let mut branch = self._branches.peek_mut().unwrap();
+
+        if *branch._blocks.back().unwrap().hash() != *block.prev_hash() {
+            return false;
+        }
+        //TODO: heap must takes into account changes
+        if branch._blocks.len() > CUT_OFF_AGE {
+            branch._blocks.pop_front();
+        }
+
+        branch._blocks.push_back(block);
+        branch._timestamp = time::get_time();
         true
     }
 
-    pub fn add_tx(&mut self, _: Transaction) {}
+    pub fn add_tx(&mut self, tx: Transaction) {
+        self._tx_pool.add_tx(tx)
+    }
 }
