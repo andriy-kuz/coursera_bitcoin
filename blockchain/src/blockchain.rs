@@ -8,14 +8,31 @@ use time::Timespec;
 use transaction_pool::TransactionPool;
 use transaction::Transaction;
 use utxo::UTXOPool;
+use utxo::UTXO;
 
 pub struct Branch {
-    /// Blocks list, keeps only CUT_OFF_AGE number of newest blocks
     _blocks: LinkedList<Block>,
     /// Timestamp for last block in list
     _timestamp: Timespec,
     /// unspended transactions pool for this branch
     pub _utxo_pool: UTXOPool,
+}
+
+impl Branch {
+    fn new(genesis_block: Block) -> Self {
+        let mut branch = Branch {
+            _blocks: LinkedList::new(),
+            _timestamp: time::get_time(),
+            _utxo_pool: UTXOPool::new(),
+        };
+        // Add coinbase tx to utxo pool
+        for (index, tx) in genesis_block.coinbase().get_outputs().iter().enumerate() {
+            let utxo = UTXO::new(genesis_block.coinbase().hash().clone(), index);
+            branch._utxo_pool.add_UTXO(utxo, tx.clone());
+        }
+        branch._blocks.push_back(genesis_block);
+        branch
+    }
 }
 
 impl PartialEq for Branch {
@@ -58,10 +75,12 @@ pub struct Blockchain {
 
 impl Blockchain {
     pub fn new(genesis_block: Block) -> Self {
-        Blockchain {
+        let mut blockchain = Blockchain {
             _tx_pool: TransactionPool::new(),
             _branches: BinaryHeap::new(),
-        }
+        };
+        blockchain._branches.push(Branch::new(genesis_block));
+        blockchain
     }
 
     pub fn get_max_height_block(&self) -> &Block {
@@ -85,11 +104,11 @@ impl Blockchain {
         if *branch._blocks.back().unwrap().hash() != *block.prev_hash() {
             return false;
         }
-        //TODO: heap must takes into account changes
-        if branch._blocks.len() > CUT_OFF_AGE {
-            branch._blocks.pop_front();
+        // Add coinbase tx to utxo pool
+        for (index, tx) in block.coinbase().get_outputs().iter().enumerate() {
+            let utxo = UTXO::new(block.coinbase().hash().clone(), index);
+            branch._utxo_pool.add_UTXO(utxo, tx.clone());
         }
-
         branch._blocks.push_back(block);
         branch._timestamp = time::get_time();
         true
