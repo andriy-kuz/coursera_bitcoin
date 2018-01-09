@@ -1,4 +1,5 @@
 use block::Block;
+use std::cmp;
 use std::cmp::Ordering;
 use std::collections::binary_heap::PeekMut;
 use std::collections::BinaryHeap;
@@ -99,22 +100,55 @@ impl Blockchain {
         if *block.prev_hash() == [0; 32] {
             return false;
         }
-        let mut branch = self._branches.peek_mut().unwrap();
+        // try add block to highest branch
+        let highest_branch_len;
+        {
+            let mut branch = self._branches.peek_mut().unwrap();
+            highest_branch_len = branch._blocks.len();
 
-        if *branch._blocks.back().unwrap().hash() != *block.prev_hash() {
+            if *branch._blocks.back().unwrap().hash() != *block.prev_hash() {
+                Self::add_block_to_branch(&mut branch, block);
+                return true;
+            }
+        }
+        // search branch
+        if self._branches
+            .iter()
+            .find(|ref branch| *branch._blocks.back().unwrap().hash() == *block.prev_hash())
+            == None
+        {
             return false;
         }
-        // Add coinbase tx to utxo pool
-        for (index, tx) in block.coinbase().get_outputs().iter().enumerate() {
-            let utxo = UTXO::new(block.coinbase().hash().clone(), index);
-            branch._utxo_pool.add_UTXO(utxo, tx.clone());
+        // drain branches heap, add block to branch, recreate heap
+        let mut new_branches = BinaryHeap::new();
+
+        for mut branch in self._branches.drain() {
+            if *branch._blocks.back().unwrap().hash() == *block.prev_hash() {
+                Self::add_block_to_branch(&mut branch, block);
+            }
+
+            if cmp::max(highest_branch_len, branch._blocks.len())
+                - cmp::min(highest_branch_len, branch._blocks.len()) < CUT_OFF_AGE
+            {
+                new_branches.push(branch);
+            }
         }
-        branch._blocks.push_back(block);
-        branch._timestamp = time::get_time();
+        self._branches = new_branches;
         true
     }
 
     pub fn add_tx(&mut self, tx: Transaction) {
         self._tx_pool.add_tx(tx)
+    }
+
+    fn add_block_to_branch(branch: &mut Branch, block: Block) {
+        // Add coinbase tx to utxo pool
+        for (index, tx) in block.coinbase().get_outputs().iter().enumerate() {
+            let utxo = UTXO::new(block.coinbase().hash().clone(), index);
+            branch._utxo_pool.add_UTXO(utxo, tx.clone());
+        }
+        // add block
+        branch._blocks.push_back(block);
+        branch._timestamp = time::get_time();
     }
 }
