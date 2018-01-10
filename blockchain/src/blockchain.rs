@@ -120,20 +120,27 @@ impl Blockchain {
             return false;
         }
         // drain branches heap, add block to branch, recreate heap
-        let mut new_branches = BinaryHeap::new();
+        let mut branches = BinaryHeap::new();
+        // Modified branch
+        let mut mod_branch: Option<Branch> = None;
 
         for mut branch in self._branches.drain() {
-            if *branch._blocks.back().unwrap().hash() == *block.prev_hash() {
-                Self::add_block_to_branch(&mut branch, block);
-            }
-
             if cmp::max(highest_branch_len, branch._blocks.len())
-                - cmp::min(highest_branch_len, branch._blocks.len()) < CUT_OFF_AGE
+                - cmp::min(highest_branch_len, branch._blocks.len()) >= CUT_OFF_AGE
             {
-                new_branches.push(branch);
+                continue;
+            }
+            if *branch._blocks.back().unwrap().hash() == *block.prev_hash() {
+                mod_branch = Some(branch);
+            } else {
+                branches.push(branch);
             }
         }
-        self._branches = new_branches;
+        if let Some(mut branch) = mod_branch {
+            Self::add_block_to_branch(&mut branch, block);
+            branches.push(branch);
+        }
+        self._branches = branches;
         true
     }
 
